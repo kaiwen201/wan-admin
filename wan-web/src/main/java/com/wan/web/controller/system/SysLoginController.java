@@ -33,7 +33,7 @@ public class SysLoginController extends BaseController {
 	@GetMapping("/login")
 	public String login(ModelMap map) {
 		getConfig(map);
-//更新测试
+//更新测试16:04
 		SysConfig config = (SysConfig) map.get("config");
 		System.out.println("login/login" + config.getLogin_page_template_type());
 		return "login/login" + config.getLogin_page_template_type();
