@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wan.system.mapper.SysMenuMapper">
+
+	<resultMap type="SysMenu" id="SysMenuResult">
+		<id     property="id"               column="menu_id"        />
+		<result property="pid"              column="pid"    />
+		<result property="status"           column="status"      />
+		<result property="type"           column="type"      />
+		<result property="name"             column="name"      />
+		<result property="icon"             column="icon"      />
+		<result property="url"              column="url"            />
+		<result property="permissionValue"	column="permission_value"         />
+		<result property="seq"              column="seq"      />
+		<result property="gmtCreate"        column="gmt_create"        />
+		<result property="gmtModified"      column="gmt_modified"          />
+		<result property="hasPermission"    column="hasPermission"          />
+	</resultMap>
+	
+	<sql id="selectMenuVO">
+		select menu_id, pid, status, type, name, icon, url, permission_value, seq, gmt_create, gmt_modified
+		from sys_menu
+	</sql>
+	
+	<select id="listMenus" resultMap="SysMenuResult">
+		<include refid="selectMenuVO"/>
+		order by seq asc
+	</select>
+	
+	<select id="listMenusByUserId" parameterType="Long" resultMap="SysMenuResult">
+		select m.menu_id, m.pid, m.type, m.name, m.icon, m.url, m.permission_value, m.seq, m.gmt_create, m.gmt_modified
+		from sys_menu m
+		where m.type = 'MENU' and m.status = '1'
+		and exists (select 1 from sys_role_rule rr left join sys_user_role ur on ur.role_id = rr.role_id where ur.user_id = #{userId} and rr.permission_value = m.permission_value)
+		order by m.seq asc
+	</select>
+	
+	<select id="listMenusByRoleId" parameterType="Long" resultMap="SysMenuResult">
+		select m.menu_id, m.pid, m.type, m.name, m.icon, m.url, m.permission_value, m.seq, m.gmt_create, m.gmt_modified,
+			case when (select count(1) from sys_role_rule rr where rr.role_id = #{roleId} and rr.permission_value = m.permission_value)>0 then true else false end as hasPermission
+		from sys_menu m
+		where m.status = '1'
+		order by m.seq asc
+	</select>
+	
+	<select id="getMenuById" parameterType="Long" resultMap="SysMenuResult">
+		<include refid="selectMenuVO"/>
+		where menu_id = #{id}
+	</select>
+	
+	<insert id="insertMenu" parameterType="SysMenu">
+		insert into sys_menu(
+			<if test="pid != null">pid,</if>
+			<if test="status != null and status != ''">status,</if>
+			<if test="type != null and type != ''">type,</if>
+			<if test="name != null and name != ''">name,</if>
+			<if test="icon != null and icon != ''">icon,</if>
+			<if test="url != null and url != ''">url,</if>
+			<if test="permissionValue != null and permissionValue != ''">permission_value,</if>
+			<if test="seq != null and seq != ''">seq,</if>
+			gmt_create
+		) values (
+			<if test="pid != null">#{pid},</if>
+			<if test="status != null and status != ''">#{status},</if>
+			<if test="type != null and type != ''">#{type},</if>
+			<if test="name != null and name != ''">#{name},</if>
+			<if test="icon != null and icon != ''">#{icon},</if>
+			<if test="url != null and url != ''">#{url},</if>
+			<if test="permissionValue != null and permissionValue != ''">#{permissionValue},</if>
+			<if test="seq != null and seq != ''">#{seq},</if>
+			now()
+		)
+	</insert>
+	
+	<update id="updateMenu" parameterType="SysMenu">
+		update sys_menu
+		<set>
+			<if test="status != null">status = #{status},</if>
+			<if test="type != null">type = #{type},</if>
+			<if test="name != null">name = #{name},</if>
+			<if test="icon != null">icon = #{icon},</if>
+			<if test="url != null">url = #{url},</if>
+			<if test="permissionValue != null">permission_value = #{permissionValue},</if>
+			<if test="seq != null">seq = #{seq},</if>
+			gmt_modified = now()
+		</set>
+		where menu_id = #{id}
+	</update>
+	
+	<delete id="deleteMenu" parameterType="Long">
+		delete from sys_menu where menu_id = #{id}
+	</delete>
+
+</mapper>

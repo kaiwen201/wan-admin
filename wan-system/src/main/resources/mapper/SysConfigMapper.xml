@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wan.system.mapper.SysConfigMapper">
+
+	<sql id="selectConfigVO">
+		select config_key, config_value from sys_config
+	</sql>
+	
+	<select id="listConfigs" resultType="java.util.Map">
+		<include refid="selectConfigVO"/>
+	</select>
+	
+	<select id="getConfigByConfigKey" parameterType="String" resultType="java.util.Map">
+		<include refid="selectConfigVO"/>
+		where config_key = #{configKey}
+	</select>
+	
+	<insert id="insertConfig" parameterType="String">
+		insert into sys_config(config_key, config_value, gmt_create) values (#{configKey}, #{configValue}, now())
+	</insert>
+	
+	<update id="updateConfig" parameterType="String">
+		update sys_config 
+		set config_value = #{configValue}, gmt_modified = now() 
+		where config_key = #{configKey}
+	</update>
+
+</mapper>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <#assign title="登录日志">
+  <#include "/head.html">
+</head>
+  
+<body>
+<div class="container-fluid p-t-15">
+  
+  <div class="row">
+    
+    <div class="col-lg-12">
+      <div class="card">
+      
+        <div class="card-toolbar clearfix">
+          <form id="searchForm" class="form-inline" action="#!" method="post">
+            <div class="form-group mb-2 mr-2">
+              <input class="form-control" type="text" name="loginname" placeholder="登录名..">
+            </div>
+            <div class="form-group mb-2 mr-2">
+              <select id="loginStatus" name="loginStatus" class="form-control">
+                <option value="">不限状态</option>
+              </select>
+            </div>
+            <div class="form-group mb-2 mr-2">
+              <div class="input-group">
+                <input type="text" class="form-control" data-provide="datepicker" name="query[srartDate]" placeholder="开始时间" value="${.now?string('yyyy-MM-dd')}">
+                <div class="input-group-prepend input-group-append">
+                  <span class="input-group-text">至</span>
+                </div>
+                <input type="text" class="form-control" data-provide="datepicker" name="query[endDate]" placeholder="结束时间">
+              </div>
+            </div>
+            <a class="btn btn-default mb-2 mr-2" type="button" onclick="refreshTable()"><i class="mdi mdi-magnify"></i> 搜索</a>
+            <a class="btn btn-success mb-2 mr-2" type="button" onclick="exportData()"><i class="mdi mdi-export"></i> 导出</a>
+            <button class="btn btn-secondary mb-2" type="reset">重置</button>
+          </form>
+        </div>
+      
+        <div class="card-body">
+          
+          <table id="bootstrap-table"></table>
+          
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+</div>
+
+<#include "/footer.html">
+
+<script type="text/javascript">
+var prefix = "system/log";
+var listUrl = prefix + '/loginList';
+
+listDictOptions('sys_login_status', '#loginStatus');
+
+bootstrapTable({
+	url: listUrl,
+    columns: [{
+        field: 'id',
+        title: '编号'
+    }, {
+        field: 'loginname',
+        title: '登录名'
+    }, {
+       	field: 'ip',
+        title: '操作IP'
+    }, {
+       	field: 'browser',
+        title: '浏览器'
+    }, {
+       	field: 'operatingSystem',
+        title: '操作系统'
+    }, {
+        field: 'loginStatus',
+        title: '登录状态',
+        formatter: function (value, row, index) {
+        	var fontClass = value == '0' ? 'text-success' : 'text-danger';
+            return '<font class="' + fontClass +'">' + getDict('sys_login_status', value) + '</font>'
+        }
+    }, {
+       	field: 'message',
+        title: '操作信息'
+    }, {
+    	field: 'gmtCreate',
+        title: '操作时间'
+    }]
+});
+
+function exportData() {
+	layer.confirm('确定按查询条件导出所有记录？', function(index) {
+		location = prefix + '/loginExport?fileName=登录日志&' + $('#searchForm').serializeString();
+	    layer.close(index);
+	});
+}
+</script>
+</body>
+</html>
